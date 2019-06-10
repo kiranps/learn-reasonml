@@ -26,32 +26,22 @@ let compile_super_errors_ppx_v2: string => js_out = [%bs.raw
   {| window.ocaml.compile_super_errors_ppx_v2 |}
 ];
 
+let printML: string => string = [%bs.raw {| window.printML |}];
+
+let parseRE: string => 'a = [%bs.raw {| window.parseRE |}];
+
 let compile_to_ocaml: string => string = [%bs.raw
   {|
     function(reasonCode) {
-      return reasonCode;
+    window.printML(window.parseRE(reasonCode))
     }
   |}
-];
-
-let jsCalculate: (array(int), int) => int = [%bs.raw
-  {|
- function (numbers, scaleFactor) {
-   var result = 0;
-   numbers.forEach(number => {
-     result += number;
-   });
-   return result * scaleFactor;
- }
-|}
 ];
 
 let wrapInExports = code => "(function(exports) {" ++ code ++ "})({})";
 
 let compile = code => {
-  let output = code |> compile_super_errors_ppx_v2;
-  Js.log(code);
-  let _ = code => code |> compile_to_ocaml |> Js.log;
+  let output = code |> parseRE |> printML |> compile_super_errors_ppx_v2;
 
   switch (js_codeGet(output)) {
   | None =>
