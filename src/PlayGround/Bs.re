@@ -28,16 +28,30 @@ let compile_super_errors_ppx_v2: string => js_out = [%bs.raw
 
 let compile_to_ocaml: string => string = [%bs.raw
   {|
-    ((reasonCode) => {
-      window.printML(window.parseRE(reasonCode))
-    })
+    function(reasonCode) {
+      return reasonCode;
+    }
   |}
+];
+
+let jsCalculate: (array(int), int) => int = [%bs.raw
+  {|
+ function (numbers, scaleFactor) {
+   var result = 0;
+   numbers.forEach(number => {
+     result += number;
+   });
+   return result * scaleFactor;
+ }
+|}
 ];
 
 let wrapInExports = code => "(function(exports) {" ++ code ++ "})({})";
 
 let compile = code => {
-  let output = code |> compile_to_ocaml |> compile_super_errors_ppx_v2;
+  let output = code |> compile_super_errors_ppx_v2;
+  Js.log(code);
+  let _ = code => code |> compile_to_ocaml |> Js.log;
 
   switch (js_codeGet(output)) {
   | None =>

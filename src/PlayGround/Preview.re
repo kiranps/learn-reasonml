@@ -28,11 +28,13 @@ let interseptLog: (string => unit) => unit = [%bs.raw
 let make = _ => {
   let (logData, setLogData) = React.useState(() => "");
 
-  React.useEffect0(() => {
-    let logger = data => setLogData(_ => data);
-    let _ = interseptLog(logger);
-    Some(() => ());
-  });
+  React.useEffect0(() =>
+    /* let logger = data => setLogData(_ => data);
+       let _ = interseptLog(logger); */
+    Some(
+      () => (),
+    )
+  );
 
   <div className=preview_style> {logData |> React.string} </div>;
 };
