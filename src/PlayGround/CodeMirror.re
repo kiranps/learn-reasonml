@@ -16,9 +16,9 @@ module CM = {
   type evt;
   type cmds = {. [@bs.set] "save": evt => unit};
 
-  [@bs.module "codemirror"] external commands: cmds = "";
   [@bs.module]
   external init: (option(Dom.element), cmprops) => cm = "codemirror";
+  [@bs.module "codemirror"] external commands: cmds = "";
   [@bs.send] external getValue: evt => string = "";
   [@bs.send] external on: (cm, string, evt => unit) => unit = "";
 };
@@ -61,5 +61,7 @@ let make =
       [||],
     );
 
-    <div className ref={ReactDOMRe.Ref.domRef(divRef)} />;
+    <EditorContainer>
+      <div className ref={ReactDOMRe.Ref.domRef(divRef)} />
+    </EditorContainer>;
   });
