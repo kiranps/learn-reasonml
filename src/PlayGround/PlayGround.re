@@ -21,8 +21,9 @@ let make = _ => {
       switch (type_) {
       | Fail => Js.log(result)
       | Success =>
-        Utils.eval(result);
-        setCode(_ => result);
+        let _ = Utils.eval(result);
+        let _ = setCode(_ => result);
+        ();
       };
     });
 
