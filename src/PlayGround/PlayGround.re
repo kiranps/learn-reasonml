@@ -1,5 +1,9 @@
 open Css;
 
+let sample_code = {|let add = (x, y) => x + y;
+let addTen = 10 |> add;
+let _ = 12 |> addTen |> Js.log;|};
+
 let editor_style =
   style([
     height(pct(100.0)),
@@ -9,7 +13,7 @@ let editor_style =
 
 [@react.component]
 let make = _ => {
-  let (code, setCode) = React.useState(() => "");
+  let (code, setCode) = React.useState(() => sample_code);
 
   let handleSave =
     React.useCallback1(
@@ -27,6 +31,6 @@ let make = _ => {
 
   <>
     <CodeMirror className=editor_style value=code onSave=handleSave />
-    <Preview />
+    <Console />
   </>;
 };

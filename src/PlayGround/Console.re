@@ -12,7 +12,7 @@ let preview_style =
     boxSizing(borderBox),
   ]);
 
-let interseptLog: (string => unit) => unit = [%bs.raw
+let interseptor: (string => unit) => unit = [%bs.raw
   {|
     ((cb) => {
         var log = console.log;
@@ -30,7 +30,7 @@ let make = _ => {
 
   React.useEffect0(() => {
     let logger = data => setLogData(_ => data);
-    let _ = interseptLog(logger);
+    let _ = interseptor(logger);
     Some(() => ());
   });
 
