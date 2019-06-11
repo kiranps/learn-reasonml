@@ -4,12 +4,13 @@ let preview_style =
   style([
     position(absolute),
     display(inlineBlock),
-    top(px(0)),
+    top(px(36)),
     bottom(px(0)),
     right(px(0)),
     width(pct(50.0)),
     padding(px(15)),
     boxSizing(borderBox),
+    backgroundColor(hex("f7f7f7")),
   ]);
 
 let interseptor: (string => unit) => unit = [%bs.raw
