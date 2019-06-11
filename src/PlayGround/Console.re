@@ -13,6 +13,8 @@ let preview_style =
     backgroundColor(hex("f7f7f7")),
   ]);
 
+let log_info_style = style([paddingBottom(px(5))]);
+
 let interseptor: (string => unit) => unit = [%bs.raw
   {|
     ((cb) => {
@@ -39,12 +41,10 @@ let make = _ => {
     {log
      |> Js.String.split("\n")
      |> Array.mapi((i, x) =>
-          <div key={string_of_int(i)}> {React.string(x)} </div>
+          <div key={string_of_int(i)} className=log_info_style>
+            {React.string(x)}
+          </div>
         )
      |> React.array}
   </div>;
 };
-
-/* |> Js.String.split("\n")
-   |> List.mapi((i,x) => <div key={string_of_int(i)}> {React.string(x)} </div>)}
-   |> React.array */
