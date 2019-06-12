@@ -9,12 +9,12 @@ let editor_style =
 
 [@react.component]
 let make = (~exercise_name: string) => {
-  let (code, setCode) = React.useState(() => "");
+  let (code, setCode) = React.useState(() => None);
 
   React.useEffect0(() => {
     Js.Promise.(
       Http.getText("/exercises/" ++ exercise_name)
-      |> then_(text => text |> (text => setCode(_ => text) |> resolve))
+      |> then_(text => text |> (text => setCode(_ => Some(text)) |> resolve))
     );
     Some(() => ());
   });
@@ -26,16 +26,18 @@ let make = (~exercise_name: string) => {
       | Fail => Js.log(result)
       | Success =>
         let _ = Utils.eval(result);
-        let _ = setCode(_ => result);
+        let _ = setCode(_ => Some(result));
         ();
       };
     });
 
   <>
     <AppBar />
-    {code !== ""
-       ? <CodeMirror className=editor_style value=code onSave=handleSave />
-       : <div> {React.string("Loading")} </div>}
+    {switch (code) {
+     | Some(value) =>
+       <CodeMirror className=editor_style value onSave=handleSave />
+     | None => <div> {React.string("Loading")} </div>
+     }}
     <Console />
   </>;
 };
