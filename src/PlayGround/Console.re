@@ -11,6 +11,7 @@ let preview_style =
     padding(px(15)),
     boxSizing(borderBox),
     backgroundColor(hex("f7f7f7")),
+    overflow(auto),
   ]);
 
 let log_info_style = style([paddingBottom(px(5))]);
