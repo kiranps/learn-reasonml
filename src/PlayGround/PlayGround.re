@@ -21,7 +21,7 @@ let make = (~exercise_name: string) => {
 
   let handleSave =
     React.useCallback0(value => {
-      let (type_, result) = value |> Bs.compile;
+      let (type_, result) = value |> Compiler.compile;
       switch (type_) {
       | Fail => Js.log(result)
       | Success =>
