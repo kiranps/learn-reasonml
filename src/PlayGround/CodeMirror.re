@@ -1,7 +1,7 @@
 Utils.require("codemirror/keymap/vim");
 Utils.require("codemirror/lib/codemirror.css");
 Utils.require("codemirror/addon/dialog/dialog.css");
-Utils.require("codemirror/mode/javascript/javascript");
+Utils.require("codemirror/mode/rust/rust");
 
 module CM = {
   [@bs.deriving abstract]
@@ -31,12 +31,7 @@ let make =
     React.useEffect1(
       () => {
         let options =
-          CM.cmprops(
-            ~lineNumbers=true,
-            ~keyMap="vim",
-            ~mode="javascript",
-            ~value,
-          );
+          CM.cmprops(~lineNumbers=true, ~keyMap="vim", ~mode="rust", ~value);
 
         let cm =
           CM.init(

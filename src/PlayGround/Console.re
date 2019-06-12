@@ -14,8 +14,6 @@ let preview_style =
     overflow(auto),
   ]);
 
-let log_info_style = style([paddingBottom(px(5))]);
-
 let interseptor: (string => unit) => unit = [%bs.raw
   {|
     ((cb) => {
@@ -27,6 +25,14 @@ let interseptor: (string => unit) => unit = [%bs.raw
     })
   |}
 ];
+
+module ConsoleInfo = {
+  let log_info_style = style([paddingBottom(px(5))]);
+
+  [@react.component]
+  let make = (~text) =>
+    <div className=log_info_style> {React.string(text)} </div>;
+};
 
 [@react.component]
 let make = _ => {
@@ -41,10 +47,8 @@ let make = _ => {
   <div className=preview_style>
     {log
      |> Js.String.split("\n")
-     |> Array.mapi((i, x) =>
-          <div key={string_of_int(i)} className=log_info_style>
-            {React.string(x)}
-          </div>
+     |> Array.mapi((i, log) =>
+          <ConsoleInfo key={string_of_int(i)} text=log />
         )
      |> React.array}
   </div>;

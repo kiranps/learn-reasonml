@@ -33,7 +33,7 @@ let parseRE: string => 'a = [%bs.raw {| window.parseRE |}];
 let compile_to_ocaml: string => string = [%bs.raw
   {|
     function(reasonCode) {
-    window.printML(window.parseRE(reasonCode))
+      window.printML(window.parseRE(reasonCode))
     }
   |}
 ];
@@ -42,9 +42,9 @@ let prependTestModule = code => ReModules.test ++ code;
 
 let wrapInExports = code => "(function(exports) {" ++ code ++ "})({})";
 
-let compile = code => {
+let compile = reasonCode => {
   let output =
-    code
+    reasonCode
     |> prependTestModule
     |> parseRE
     |> printML
