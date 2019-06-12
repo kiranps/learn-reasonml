@@ -8,12 +8,12 @@ let editor_style =
   ]);
 
 [@react.component]
-let make = _ => {
+let make = (~exercise_name: string) => {
   let (code, setCode) = React.useState(() => "");
 
   React.useEffect0(() => {
     Js.Promise.(
-      Http.getText("/chapters/02-basic-types")
+      Http.getText("/exercises/" ++ exercise_name)
       |> then_(text => text |> (text => setCode(_ => text) |> resolve))
     );
     Some(() => ());

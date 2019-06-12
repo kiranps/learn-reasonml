@@ -1,2 +1,2 @@
 Utils.require("./index.css");
-ReactDOMRe.renderToElementWithId(<App />, "root");
+ReactDOMRe.renderToElementWithId(<Router />, "root");
