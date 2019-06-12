@@ -17,6 +17,7 @@
   "license": "MIT",
   "dependencies": {
     "bs-css": "^8.0.4",
+    "bs-fetch": "^0.4.0",
     "codemirror": "^5.47.0",
     "css-loader": "^2.1.1",
     "react": "^16.8.1",
