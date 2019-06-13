@@ -16,8 +16,7 @@ let () = {
 
   let range: (int, int) => list(int)
  */
-let rec range = (from, to_) => 
-  from == to_ ? [] : [from] @ range(from+1, to_)
+let range = (from, to_) => failwith("For you to implement");
 
 Test.runAll([
   (range(1, 4) == [1, 2, 3], "range"),

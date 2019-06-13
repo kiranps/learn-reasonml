@@ -1,8 +1,8 @@
 /* Now let's write a function to multiply the elements of a list. */
 let rec product = xs =>
   switch (xs) {
-  | [] => 1
-  | [hd, ...rest] => hd * product(rest)
+  | [] => failwith("For you to implement")
+  | _for_you_to_implement => failwith("For you to implement")
   };
 
 Test.runAll([

@@ -2,12 +2,12 @@
   We can easily write a function that adds 1 to any number.
   Recall that the infix operator (+) will add two integers.
  */
-let add1 = x => x + 1;
+let add1 = x => failwith("For you to implement");
 
 /*
   Let's write a function that squares its argument (multiplies it by itself)
  */
-let square = x => x * x;
+let square = x => failwith("For you to implement");
 
 /*
   Functions are first class in Reason. This means that you can take
@@ -20,14 +20,12 @@ let square = x => x * x;
   by writing:
   let add2 = twice(add1)
  */
-let twice = (f, x) => f(f(x));
+let twice = (f, x) => failwith("For you to implement");
 
 /* Now that we have twice, write add2 and raiseToTheFourth */
-let add2 = twice(add1); /* Hint: use add1 */
+let add2 = failwith("For you to implement"); /* Hint: use add1 */
 
-let raiseToTheFourth = twice(square); /* Hint: use square */
-
-let () = Js.log(add2(3))
+let raiseToTheFourth = failwith("For you to implement"); /* Hint: use square */
 
 Test.runAll([
   (add1(4) == 5, "add1"),
