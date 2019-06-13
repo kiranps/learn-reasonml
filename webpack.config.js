@@ -1,5 +1,6 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 const contentBase = path.join(__dirname, "/public");
 const buildPath = path.join(__dirname, "/build");
 
@@ -24,7 +25,8 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: "src/index.html",
       inject: false
-    })
+    }),
+    new CopyPlugin([{ from: "public" }])
   ],
   devServer: {
     compress: true,
