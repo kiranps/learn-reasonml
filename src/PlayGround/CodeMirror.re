@@ -28,33 +28,27 @@ let make =
   React.memo((~value, ~onChange=?, ~onSave=?, ~className="") => {
     let divRef = React.useRef(Js.Nullable.null);
 
-    React.useEffect1(
-      () => {
-        let options =
-          CM.cmprops(~lineNumbers=true, ~keyMap="vim", ~mode="rust", ~value);
+    React.useEffect0(() => {
+      let options =
+        CM.cmprops(~lineNumbers=true, ~keyMap="vim", ~mode="rust", ~value);
 
-        let cm =
-          CM.init(
-            Js.Nullable.toOption(React.Ref.(current(divRef))),
-            options,
-          );
+      let cm =
+        CM.init(Js.Nullable.toOption(React.Ref.(current(divRef))), options);
 
-        switch (onSave) {
-        | None => ()
-        | Some(handleSave) =>
-          CM.commands##save #= (e => handleSave(CM.getValue(e)))
-        };
+      switch (onSave) {
+      | None => ()
+      | Some(handleSave) =>
+        CM.commands##save #= (e => handleSave(CM.getValue(e)))
+      };
 
-        switch (onChange) {
-        | None => ()
-        | Some(handleChange) =>
-          CM.on(cm, "change", e => handleChange(CM.getValue(e)))
-        };
+      switch (onChange) {
+      | None => ()
+      | Some(handleChange) =>
+        CM.on(cm, "change", e => handleChange(CM.getValue(e)))
+      };
 
-        Some(() => ());
-      },
-      [||],
-    );
+      Some(() => ());
+    });
 
     <EditorContainer>
       <div className ref={ReactDOMRe.Ref.domRef(divRef)} />

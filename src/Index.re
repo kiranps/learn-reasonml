@@ -1,2 +1,5 @@
 Utils.require("./index.css");
-ReactDOMRe.renderToElementWithId(<Router />, "root");
+ReactDOMRe.renderToElementWithId(
+  <Logger.Provider> <Router /> </Logger.Provider>,
+  "root",
+);
