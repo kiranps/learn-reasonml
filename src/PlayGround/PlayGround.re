@@ -10,6 +10,7 @@ let editor_style =
 [@react.component]
 let make = (~exercise_name: string) => {
   let (code, setCode) = React.useState(() => None);
+  let (_, _, _, switchErrorToWarn, revertErrorToWarn, _) = Logger.useLogger();
 
   React.useEffect0(() => {
     Js.Promise.(
@@ -21,7 +22,9 @@ let make = (~exercise_name: string) => {
 
   let handleSave =
     React.useCallback0(value => {
+      let _ = switchErrorToWarn();
       let (type_, result) = value |> Compiler.compile;
+      let _ = revertErrorToWarn();
       switch (type_) {
       | Fail => Js.log(result)
       | Success =>
