@@ -14,25 +14,6 @@ let preview_style =
     overflow(auto),
   ]);
 
-let interseptor: (string => unit) => unit = [%bs.raw
-  {|
-    ((cb) => {
-      var log = console.log;
-      var error = console.error;
-
-      console.log = (text) => {
-        log(text);
-        cb(text);
-      }
-
-      console.error = (text) => {
-        error(text);
-        cb(text);
-      }
-    })
-  |}
-];
-
 module ConsoleInfo = {
   let log_info_style = style([paddingBottom(px(5))]);
 
@@ -43,13 +24,10 @@ module ConsoleInfo = {
 
 [@react.component]
 let make = _ => {
-  /* let (log, updateLog) = React.useState(() => ""); */
   let (log, registerLogger, _, _, _, _) = Logger.useLogger();
 
   React.useEffect0(() => {
     let _ = registerLogger();
-    /* let logger = data => updateLog(log => log ++ data ++ "\n");
-       let _ = interseptor(logger); */
     Some(() => ());
   });
 

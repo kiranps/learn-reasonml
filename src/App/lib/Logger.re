@@ -2,13 +2,18 @@ type state = {
   log: string,
   warn: string,
   error: string,
+  uncaught: string,
 };
 
 type action =
   | Log(string)
   | Warn(string)
   | Error(string)
+  | UnCaughtError(string)
   | Clear;
+
+[@bs.deriving abstract]
+type error_u = {message: string};
 
 module Context = {
   type t = {
@@ -23,6 +28,7 @@ module Context = {
         log: "",
         error: "",
         warn: "",
+        uncaught: "",
       },
       dispatch: _ => (),
     };
@@ -37,11 +43,12 @@ module Provider = {
         (state, action) =>
           switch (action) {
           | Log(value) => {...state, log: state.log ++ value}
-          | Error(value) => {...state, error: state.error ++ value}
-          | Warn(value) => {...state, warn: state.warn ++ value}
-          | Clear => {...state, log: "", warn: "", error: ""}
+          | Error(value) => {...state, log: state.error ++ value}
+          | Warn(value) => {...state, log: state.warn ++ value}
+          | UnCaughtError(value) => {...state, log: state.warn ++ value}
+          | Clear => {...state, log: "", warn: "", error: "", uncaught: ""}
           },
-        {log: "", error: "", warn: ""},
+        {log: "", error: "", warn: "", uncaught: ""},
       );
     <Context.Provider value={state, dispatch}> children </Context.Provider>;
   };
@@ -51,10 +58,13 @@ module Provider = {
 [@bs.scope "console"] [@bs.val] external log: 'a => unit = "";
 [@bs.scope "console"] [@bs.val] external warn: 'a => unit = "";
 [@bs.scope "console"] [@bs.val] external error: 'a => unit = "";
+[@bs.scope "window"] [@bs.val] external onerror: 'a => unit = "";
+[@bs.val] external window: 'w = "";
 [@bs.val] external console: 'b = "";
 [@bs.set] external setLog: ('b, 'a => unit) => unit = "log";
 [@bs.set] external setWarn: ('b, 'a => unit) => unit = "warn";
 [@bs.set] external setError: ('b, 'a => unit) => unit = "error";
+[@bs.set] external setOnError: ('w, 'a => unit) => unit = "onerror";
 let consoleLog: 'a => unit = [%bs.raw {| console.log |}];
 let consoleWarn: 'a => unit = [%bs.raw {| console.warn |}];
 let consoleError: 'a => unit = [%bs.raw {| console.error |}];
@@ -69,6 +79,7 @@ let intersept_ = cb => {
       ();
     },
   );
+
   setWarn(
     console,
     (text: string) => {
@@ -77,11 +88,12 @@ let intersept_ = cb => {
       ();
     },
   );
+
   setError(
     console,
     (text: string) => {
       consoleError(text);
-      cb(Log(text ++ "\n"));
+      cb(Error(text ++ "\n"));
       ();
     },
   );
@@ -109,7 +121,7 @@ let switchInterseptErrortoWarn_ = cb => {
   setError(
     console,
     (text: string) => {
-      consoleWarn(text);
+      consoleError(text);
       cb(Warn(text ++ "\n"));
       ();
     },
@@ -125,19 +137,23 @@ let deregisterLogger_ = () => {
 let useLogger = () => {
   let ctx = React.useContext(Context.ctx);
 
+  React.useEffect0(() => {
+    setOnError(window, (err: error_u) =>
+      ctx.dispatch(UnCaughtError(messageGet(err)))
+    );
+    Some(() => ());
+  });
+
   let registerLogger = () => {
-    let _ = intersept_(ctx.dispatch);
-    ();
+    intersept_(ctx.dispatch);
   };
 
   let deregisterLogger = () => {
-    let _ = deregisterLogger_();
-    ();
+    deregisterLogger_();
   };
 
   let switchInterseptErrortoWarn = () => {
-    let _ = switchInterseptErrortoWarn_(ctx.dispatch);
-    ();
+    switchInterseptErrortoWarn_(ctx.dispatch);
   };
 
   let revertInterseptErrortoWarn = registerLogger;

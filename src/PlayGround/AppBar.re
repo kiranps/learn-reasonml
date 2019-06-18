@@ -13,6 +13,6 @@ let app_style =
   ]);
 
 [@react.component]
-let make = _ => {
-  <div className=app_style> {"" |> React.string} </div>;
+let make = (~children) => {
+  <div className=app_style> children </div>;
 };

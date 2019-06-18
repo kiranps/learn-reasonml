@@ -20,25 +20,44 @@ let make = (~exercise_name: string) => {
     Some(() => ());
   });
 
-  let handleSave =
-    React.useCallback0(value => {
-      let _ = switchErrorToWarn();
-      let (type_, result) = value |> Compiler.compile;
-      let _ = revertErrorToWarn();
-      switch (type_) {
-      | Fail => Js.log(result)
-      | Success =>
-        let _ = Utils.eval(result);
-        let _ = setCode(_ => Some(result));
-        ();
+  let handleChange = React.useCallback0(value => setCode(_ => Some(value)));
+
+  let handleRun = _ => {
+    switch (code) {
+    | Some(string) =>
+      /* let _ = switchErrorToWarn(); */
+      let result = string |> Compiler.compile;
+      /* let _ = revertErrorToWarn(); */
+
+      switch (result) {
+      | Fail(message) => Js.log("error")
+      | Success(message) => Utils.eval(message)
       };
-    });
+    | None => Js.log("error")
+    };
+  };
+
+  let handleSave = value => {
+    let result = value |> Compiler.compile;
+
+    switch (result) {
+    | Fail(message) => Js.log("error")
+    | Success(message) => Utils.eval(message)
+    };
+  };
 
   <>
-    <AppBar />
+    <AppBar>
+      <button onClick=handleRun> {React.string("run")} </button>
+    </AppBar>
     {switch (code) {
      | Some(value) =>
-       <CodeMirror className=editor_style value onSave=handleSave />
+       <CodeMirror
+         className=editor_style
+         value
+         onChange=handleChange
+         onSave=handleSave
+       />
      | None => <div> {React.string("Loading")} </div>
      }}
     <Console />

@@ -19,8 +19,8 @@ type t = {
 };
 
 type out_type =
-  | Fail
-  | Success;
+  | Fail(string)
+  | Success(string);
 
 let compile_super_errors_ppx_v2: string => t = [%bs.raw
   {| window.ocaml.compile_super_errors_ppx_v2 |}
@@ -43,11 +43,7 @@ let compile = reasonCode => {
     |> compile_super_errors_ppx_v2;
 
   switch (js_codeGet(output)) {
-  | None =>
-    switch (type_Get(output)) {
-    | None => (Fail, "error")
-    | Some(type_) => (Fail, "error")
-    }
-  | Some(value) => (Success, value |> wrapInExports)
+  | None => Fail("error")
+  | Some(value) => Success(wrapInExports(value))
   };
 };
