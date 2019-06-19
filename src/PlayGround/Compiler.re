@@ -18,6 +18,20 @@ type t = {
   type_: string,
 };
 
+[@bs.deriving abstract]
+type t_location = {
+  endLine: int,
+  endLineEndChar: int,
+  startLine: int,
+  startLineStartChar: int,
+};
+
+[@bs.deriving abstract]
+type t_parse_error = {
+  location: t_location,
+  message: string,
+};
+
 type p;
 type out_type =
   | Fail(string)
@@ -47,10 +61,11 @@ let parseRE_: string => t_reason_parsed =
   reasonCode =>
     try (reasonCode |> parseRE |> (value => AST(value))) {
     | Js.Exn.Error(e) =>
+      Js.log(e);
       switch (Js.Exn.message(e)) {
-      | Some(message) => ParseFailed("parse error")
+      | Some(message) => ParseFailed(message)
       | None => ParseFailed("parse error")
-      }
+      };
     };
 
 let compile = reasonCode =>
@@ -74,7 +89,7 @@ let compile = reasonCode =>
       | Compiled(out) =>
         switch (js_codeGet(out)) {
         | Some(value) => Success(wrapInExports(value))
-        | None => Fail("error")
+        | None => Fail("compile error")
         }
       | ParseFailed(message) => Fail(message)
       }

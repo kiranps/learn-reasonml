@@ -9,7 +9,6 @@ module CM = {
     lineNumbers: bool,
     value: string,
     mode: string,
-    keyMap: string,
   };
 
   type cm;
@@ -29,8 +28,7 @@ let make =
     let divRef = React.useRef(Js.Nullable.null);
 
     React.useEffect0(() => {
-      let options =
-        CM.cmprops(~lineNumbers=true, ~keyMap="vim", ~mode="rust", ~value);
+      let options = CM.cmprops(~lineNumbers=true, ~mode="rust", ~value);
 
       let cm =
         CM.init(Js.Nullable.toOption(React.Ref.(current(divRef))), options);

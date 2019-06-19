@@ -24,29 +24,25 @@ let make = (~exercise_name: string) => {
 
   let handleChange = React.useCallback0(value => setCode(_ => Some(value)));
 
+  let handleCompile = reasonCode => {
+    let _ = switchErrorToWarn();
+    let result = reasonCode |> Compiler.compile;
+    let _ = revertErrorToWarn();
+
+    switch (result) {
+    | Fail(error) => Js.log(error)
+    | Success(message) => Utils.eval(message)
+    };
+  };
+
   let handleRun = _ => {
     switch (code) {
-    | Some(string) =>
-      let _ = switchErrorToWarn();
-      let result = string |> Compiler.compile;
-      let _ = revertErrorToWarn();
-
-      switch (result) {
-      | Fail(error) => Js.log(error)
-      | Success(message) => Utils.eval(message)
-      };
+    | Some(reasonCode) => handleCompile(reasonCode)
     | None => Js.log("error")
     };
   };
 
-  let handleSave = value => {
-    let result = value |> Compiler.compile;
-
-    switch (result) {
-    | Fail(message) => Js.log("error")
-    | Success(message) => Utils.eval(message)
-    };
-  };
+  let handleSave = handleCompile;
 
   <>
     <AppBar>
