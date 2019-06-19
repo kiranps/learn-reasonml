@@ -43,9 +43,9 @@ module Provider = {
         (state, action) =>
           switch (action) {
           | Log(value) => {...state, log: state.log ++ value}
-          | Error(value) => {...state, log: state.error ++ value}
-          | Warn(value) => {...state, log: state.warn ++ value}
-          | UnCaughtError(value) => {...state, log: state.warn ++ value}
+          | Error(value) => {...state, log: state.log ++ value}
+          | Warn(value) => {...state, log: state.log ++ value}
+          | UnCaughtError(value) => {...state, log: state.log ++ value}
           | Clear => {...state, log: "", warn: "", error: "", uncaught: ""}
           },
         {log: "", error: "", warn: "", uncaught: ""},
@@ -122,7 +122,7 @@ let switchInterseptErrortoWarn_ = cb => {
     console,
     (text: string) => {
       consoleError(text);
-      cb(Warn(text ++ "\n"));
+      cb(Error(text ++ "\n"));
       ();
     },
   );
@@ -138,6 +138,7 @@ let useLogger = () => {
   let ctx = React.useContext(Context.ctx);
 
   React.useEffect0(() => {
+    /* setOnError(window, (err: string) => ctx.dispatch(UnCaughtError(err))); */
     setOnError(window, (err: error_u) =>
       ctx.dispatch(UnCaughtError(messageGet(err)))
     );
