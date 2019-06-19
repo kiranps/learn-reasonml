@@ -18,32 +18,64 @@ type t = {
   type_: string,
 };
 
+type p;
 type out_type =
   | Fail(string)
   | Success(string);
+
+type t_reason_parsed =
+  | AST(p)
+  | ParseFailed(string);
+
+type t_compile_output =
+  | Compiled(t)
+  | ParseFailed(string);
 
 let compile_super_errors_ppx_v2: string => t = [%bs.raw
   {| window.ocaml.compile_super_errors_ppx_v2 |}
 ];
 
-let printML: string => string = [%bs.raw {| window.printML |}];
+let printML: p => string = [%bs.raw {| window.printML |}];
 
-let parseRE: string => 'a = [%bs.raw {| window.parseRE |}];
+let parseRE: string => p = [%bs.raw {| window.parseRE |}];
 
-let prependTestModule = code => ReModules.test ++ code;
+let addTestModule = code => ReModules.test ++ code;
 
 let wrapInExports = code => "(function(exports) {" ++ code ++ "})({})";
 
-let compile = reasonCode => {
-  let output =
-    reasonCode
-    |> prependTestModule
-    |> parseRE
-    |> printML
-    |> compile_super_errors_ppx_v2;
+let parseRE_: string => t_reason_parsed =
+  reasonCode =>
+    try (reasonCode |> parseRE |> (value => AST(value))) {
+    | Js.Exn.Error(e) =>
+      switch (Js.Exn.message(e)) {
+      | Some(message) => ParseFailed("parse error")
+      | None => ParseFailed("parse error")
+      }
+    };
 
-  switch (js_codeGet(output)) {
-  | None => Fail("error")
-  | Some(value) => Success(wrapInExports(value))
-  };
-};
+let compile = reasonCode =>
+  reasonCode
+  |> addTestModule
+  |> parseRE_
+  |> (
+    parsedCode =>
+      switch (parsedCode) {
+      | AST(value) =>
+        value
+        |> printML
+        |> compile_super_errors_ppx_v2
+        |> (result => Compiled(result))
+      | ParseFailed(message) => ParseFailed(message)
+      }
+  )
+  |> (
+    output =>
+      switch (output) {
+      | Compiled(out) =>
+        switch (js_codeGet(out)) {
+        | Some(value) => Success(wrapInExports(value))
+        | None => Fail("error")
+        }
+      | ParseFailed(message) => Fail(message)
+      }
+  );

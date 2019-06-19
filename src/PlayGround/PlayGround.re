@@ -30,7 +30,7 @@ let make = (~exercise_name: string) => {
       /* let _ = revertErrorToWarn(); */
 
       switch (result) {
-      | Fail(message) => Js.log("error")
+      | Fail(error) => Js.log(error)
       | Success(message) => Utils.eval(message)
       };
     | None => Js.log("error")
