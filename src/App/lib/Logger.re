@@ -100,15 +100,6 @@ let intersept_ = cb => {
 };
 
 let switchInterseptErrortoWarn_ = cb => {
-  setLog(
-    console,
-    (text: string) => {
-      consoleLog(text);
-      cb(Log(text ++ "\n"));
-      ();
-    },
-  );
-
   setWarn(
     console,
     (text: string) => {
@@ -121,8 +112,8 @@ let switchInterseptErrortoWarn_ = cb => {
   setError(
     console,
     (text: string) => {
-      consoleError(text);
-      cb(Error(text ++ "\n"));
+      consoleWarn(text);
+      cb(Warn(text ++ "\n"));
       ();
     },
   );

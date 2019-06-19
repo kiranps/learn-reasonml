@@ -10,9 +10,11 @@ let editor_style =
 [@react.component]
 let make = (~exercise_name: string) => {
   let (code, setCode) = React.useState(() => None);
-  let (_, _, _, switchErrorToWarn, revertErrorToWarn, _) = Logger.useLogger();
+  let (_, _, _, switchErrorToWarn, revertErrorToWarn, clearConsole) =
+    Logger.useLogger();
 
   React.useEffect0(() => {
+    let _ = clearConsole();
     Js.Promise.(
       Http.getText("/exercises/" ++ exercise_name)
       |> then_(text => text |> (text => setCode(_ => Some(text)) |> resolve))
@@ -25,9 +27,9 @@ let make = (~exercise_name: string) => {
   let handleRun = _ => {
     switch (code) {
     | Some(string) =>
-      /* let _ = switchErrorToWarn(); */
+      let _ = switchErrorToWarn();
       let result = string |> Compiler.compile;
-      /* let _ = revertErrorToWarn(); */
+      let _ = revertErrorToWarn();
 
       switch (result) {
       | Fail(error) => Js.log(error)
