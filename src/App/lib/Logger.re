@@ -129,7 +129,6 @@ let useLogger = () => {
   let ctx = React.useContext(Context.ctx);
 
   React.useEffect0(() => {
-    /* setOnError(window, (err: string) => ctx.dispatch(UnCaughtError(err))); */
     setOnError(window, (err: error_u) =>
       ctx.dispatch(UnCaughtError(messageGet(err)))
     );

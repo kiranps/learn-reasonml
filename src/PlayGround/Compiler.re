@@ -57,14 +57,34 @@ let addTestModule = code => ReModules.test ++ code;
 
 let wrapInExports = code => "(function(exports) {" ++ code ++ "})({})";
 
+external exnToParseError: Js.Exn.t => t_parse_error = "%identity";
+
+let fixLineNumber = x => x - 47;
+
 let parseRE_: string => t_reason_parsed =
   reasonCode =>
     try (reasonCode |> parseRE |> (value => AST(value))) {
     | Js.Exn.Error(e) =>
+      let errorObject = exnToParseError(e);
+      let location = locationGet(errorObject);
+      let startLine =
+        location |> startLineGet |> fixLineNumber |> string_of_int;
+      let endLine = location |> endLineGet |> fixLineNumber |> string_of_int;
+      let startLineStartChar =
+        location |> startLineStartCharGet |> string_of_int;
+      let endLineEndChar = location |> endLineEndCharGet |> string_of_int;
+      let position =
+        startLine
+        ++ ":"
+        ++ startLineStartChar
+        ++ "-"
+        ++ endLine
+        ++ ":"
+        ++ endLineEndChar;
       switch (Js.Exn.message(e)) {
-      | Some(message) => ParseFailed(message)
+      | Some(message) => ParseFailed(position ++ " " ++ message)
       | None => ParseFailed("parse error")
-      }
+      };
     };
 
 let compile = reasonCode =>
