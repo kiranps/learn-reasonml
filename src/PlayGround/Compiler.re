@@ -61,11 +61,10 @@ let parseRE_: string => t_reason_parsed =
   reasonCode =>
     try (reasonCode |> parseRE |> (value => AST(value))) {
     | Js.Exn.Error(e) =>
-      Js.log(e);
       switch (Js.Exn.message(e)) {
       | Some(message) => ParseFailed(message)
       | None => ParseFailed("parse error")
-      };
+      }
     };
 
 let compile = reasonCode =>

@@ -26,10 +26,10 @@ module ConsoleInfo = {
 let make = _ => {
   let (log, registerLogger, _, _, _, _) = Logger.useLogger();
 
-  React.useEffect0(() =>
+  React.useEffect0(() => {
     let _ = registerLogger();
-    Some(() => ())
-  );
+    Some(() => ());
+  });
 
   <div className=preview_style>
     {log
