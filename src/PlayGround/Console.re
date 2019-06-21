@@ -1,5 +1,21 @@
 open Css;
 
+type t;
+[@bs.new] [@bs.module "ansi_up"] external ansiUp: unit => t = "default";
+[@bs.send] external ansi_to_html: (t, string) => string = "";
+
+let ansiInstance = ansiUp();
+
+type html = {. [@bs.set] "__html": string};
+
+let toHtmlMarkup = text => {
+  let foo = Js.Obj.empty();
+  foo##__html #= text;
+  foo;
+};
+
+let toAnsiHtml = text => text |> ansi_to_html(ansiInstance) |> toHtmlMarkup;
+
 let preview_style =
   style([
     position(absolute),
@@ -19,7 +35,10 @@ module ConsoleInfo = {
 
   [@react.component]
   let make = (~text) =>
-    <div className=log_info_style> {React.string(text)} </div>;
+    <div
+      className=log_info_style
+      dangerouslySetInnerHTML={toAnsiHtml(text)}
+    />;
 };
 
 [@react.component]

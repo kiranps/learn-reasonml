@@ -19,6 +19,7 @@
   "license": "MIT",
   "dependencies": {
     "@glennsl/bs-json": "^4.0.0",
+    "ansi_up": "^4.0.3",
     "bs-css": "^8.0.4",
     "bs-fetch": "^0.4.0",
     "codemirror": "^5.47.0",
