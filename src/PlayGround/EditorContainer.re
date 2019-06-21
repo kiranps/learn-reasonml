@@ -4,7 +4,7 @@ let container_style =
   style([
     position(absolute),
     display(inlineBlock),
-    top(px(36)),
+    top(px(35)),
     bottom(px(0)),
     left(px(0)),
     width(pct(50.0)),

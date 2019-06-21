@@ -20,11 +20,10 @@ let preview_style =
   style([
     position(absolute),
     display(inlineBlock),
-    top(px(36)),
+    top(px(35)),
     bottom(px(0)),
     right(px(0)),
     width(pct(50.0)),
-    padding(px(15)),
     boxSizing(borderBox),
     backgroundColor(hex("f7f7f7")),
     overflow(auto),
@@ -51,6 +50,14 @@ let make = _ => {
   });
 
   <div className=preview_style>
+    <Tabs>
+      {[|
+         ("Log", <Tabs.Pane name="log body" />),
+         ("Warning", <Tabs.Pane name="warning body" />),
+         ("Error", <Tabs.Pane name="error body" />),
+         ("All", <Tabs.Pane name="all body" />),
+       |]}
+    </Tabs>
     {log
      |> Js.String.split("\n")
      |> Array.mapi((i, log) =>
