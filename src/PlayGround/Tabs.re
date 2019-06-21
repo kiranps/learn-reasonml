@@ -5,7 +5,7 @@ let tab = active =>
     display(inlineBlock),
     width(px(100)),
     boxSizing(borderBox),
-    backgroundColor(hex("f7f7f7")),
+    hover([backgroundColor(hex("efefef"))]),
     textAlign(center),
     height(pct(100.)),
     padding(px(6)),
