@@ -25,44 +25,66 @@ let preview_style =
     right(px(0)),
     width(pct(50.0)),
     boxSizing(borderBox),
-    backgroundColor(hex("f7f7f7")),
+    backgroundColor(white),
     overflow(auto),
   ]);
 
-module ConsoleInfo = {
+let message_style = type_ =>
+  style([
+    fontSize(px(13)),
+    paddingTop(px(3)),
+    paddingBottom(px(3)),
+    paddingLeft(px(8)),
+    borderBottom(px(1), solid, hex("f4f4f4")),
+    (
+      switch (type_) {
+      | "log" => "757575"
+      | "error" => "ca0101"
+      | "warn" => "#ffb400"
+      | "problem" => "#ffb400"
+      | _ => "7575757"
+      }
+    )
+    |> hex
+    |> color,
+  ]);
+
+module Message = {
   let log_info_style = style([paddingBottom(px(5))]);
 
   [@react.component]
-  let make = (~text) =>
+  let make = (~text, ~type_) =>
     <div
-      className=log_info_style
+      className={message_style(type_)}
       dangerouslySetInnerHTML={toAnsiHtml(text)}
     />;
 };
 
 [@react.component]
 let make = _ => {
-  let (log, registerLogger, _, _, _, _) = Logger.useLogger();
+  let (logs, _, _) = Logger.useLogger();
 
-  React.useEffect0(() => {
-    let _ = registerLogger();
-    Some(() => ());
-  });
+  React.useEffect0(() => Some(() => ()));
+
+  let log = type_ =>
+    logs
+    |> List.filter((x: Logger.t) => x.message !== "")
+    |> List.filter((x: Logger.t) =>
+         type_ === "all" ? x.type_ !== "problems" : x.type_ === "problems"
+       )
+    |> List.mapi((i, x: Logger.t) =>
+         <Message key={string_of_int(i)} type_={x.type_} text={x.message} />
+       )
+    |> List.rev
+    |> Array.of_list
+    |> React.array;
 
   <div className=preview_style>
     <Tabs>
       {[|
-         ("Log", <Tabs.Pane name="log body" />),
-         ("Warning", <Tabs.Pane name="warning body" />),
-         ("Error", <Tabs.Pane name="error body" />),
-         ("All", <Tabs.Pane name="all body" />),
+         ("Console", <Tabs.Pane> {log("all")} </Tabs.Pane>),
+         ("Problems", <Tabs.Pane> {log("problems")} </Tabs.Pane>),
        |]}
     </Tabs>
-    {log
-     |> Js.String.split("\n")
-     |> Array.mapi((i, log) =>
-          <ConsoleInfo key={string_of_int(i)} text=log />
-        )
-     |> React.array}
   </div>;
 };

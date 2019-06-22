@@ -10,8 +10,7 @@ let editor_style =
 [@react.component]
 let make = (~exercise_name: string) => {
   let (code, setCode) = React.useState(() => None);
-  let (_, _, _, switchErrorToWarn, revertErrorToWarn, clearConsole) =
-    Logger.useLogger();
+  let (_, toggleBsWarnings, clearConsole) = Logger.useLogger();
 
   React.useEffect0(() => {
     let _ = clearConsole();
@@ -25,9 +24,9 @@ let make = (~exercise_name: string) => {
   let handleChange = React.useCallback0(value => setCode(_ => Some(value)));
 
   let handleCompile = reasonCode => {
-    let _ = switchErrorToWarn();
+    let _ = toggleBsWarnings();
     let result = reasonCode |> Compiler.compile;
-    let _ = revertErrorToWarn();
+    let _ = toggleBsWarnings();
 
     switch (result) {
     | Fail(error) => Js.log(error)

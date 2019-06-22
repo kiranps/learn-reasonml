@@ -26,6 +26,8 @@ let header =
     borderBottom(px(1), solid, rgba(158, 158, 158, 0.41)),
   ]);
 
+let pane = style([paddingTop(px(0))]);
+
 [@react.component]
 let make = (~children) => {
   let (activeTab, setTab) = React.useState(() => 0);
@@ -54,5 +56,5 @@ let make = (~children) => {
 
 module Pane = {
   [@react.component]
-  let make = (~name) => <div> {React.string(name)} </div>;
+  let make = (~children) => <div className=pane> children </div>;
 };

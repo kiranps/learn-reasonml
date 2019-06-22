@@ -1,19 +1,61 @@
+type t = {
+  type_: string,
+  message: string,
+};
 type state = {
-  log: string,
-  warn: string,
-  error: string,
-  uncaught: string,
+  all: list(t),
+  isBsLogging: bool,
 };
 
 type action =
   | Log(string)
   | Warn(string)
+  | BsWarn(string)
+  | ToggeBsWarn
   | Error(string)
   | UnCaughtError(string)
   | Clear;
 
 [@bs.deriving abstract]
 type error_u = {message: string};
+
+/* console bindings */
+[@bs.val] external window: 'w = "";
+[@bs.val] external console: 'b = "";
+[@bs.set] external setLog: ('b, 'a => unit) => unit = "log";
+[@bs.set] external setWarn: ('b, 'a => unit) => unit = "warn";
+[@bs.set] external setError: ('b, 'a => unit) => unit = "error";
+[@bs.set] external setOnError: ('w, 'a => unit) => unit = "onerror";
+let consoleLog: 'a => unit = [%bs.raw {| console.log |}];
+let consoleWarn: 'a => unit = [%bs.raw {| console.warn |}];
+let consoleError: 'a => unit = [%bs.raw {| console.error |}];
+/* console bindings */
+
+let intersept = cb => {
+  setLog(
+    console,
+    (text: string) => {
+      consoleLog(text);
+      cb(Log(text ++ "\n"));
+    },
+  );
+
+  setWarn(
+    console,
+    (text: string) => {
+      consoleWarn(text);
+      cb(Warn(text ++ "\n"));
+    },
+  );
+
+  setError(
+    console,
+    (text: string) => {
+      consoleError(text);
+      cb(Error(text ++ "\n"));
+    },
+  );
+};
 
 module Context = {
   type t = {
@@ -25,10 +67,8 @@ module Context = {
     type context = t;
     let defaultValue = {
       state: {
-        log: "",
-        error: "",
-        warn: "",
-        uncaught: "",
+        isBsLogging: false,
+        all: [],
       },
       dispatch: _ => (),
     };
@@ -42,121 +82,42 @@ module Provider = {
       React.useReducer(
         (state, action) =>
           switch (action) {
-          | Log(value) => {...state, log: state.log ++ value}
-          | Error(value) => {...state, log: state.log ++ value}
-          | Warn(value) => {...state, log: state.log ++ value}
-          | UnCaughtError(value) => {...state, log: state.log ++ value}
-          | Clear => {...state, log: "", warn: "", error: "", uncaught: ""}
+          | ToggeBsWarn => {...state, isBsLogging: !state.isBsLogging}
+          | Log(value) => {
+              ...state,
+              all: [{type_: "log", message: value}, ...state.all],
+            }
+          | Error(value) => {
+              ...state,
+              all:
+                state.isBsLogging
+                  ? [{type_: "problems", message: value}, ...state.all]
+                  : [{type_: "error", message: value}, ...state.all],
+            }
+          | Warn(value) => {
+              ...state,
+              all: [{type_: "warn", message: value}, ...state.all],
+            }
+          | Clear => {...state, all: []}
           },
-        {log: "", error: "", warn: "", uncaught: ""},
+        {all: [], isBsLogging: false},
       );
+
+    React.useEffect0(() => {
+      intersept(dispatch);
+      Some(() => ());
+    });
+
     <Context.Provider value={state, dispatch}> children </Context.Provider>;
   };
-};
-
-/* console bindings */
-[@bs.scope "console"] [@bs.val] external log: 'a => unit = "";
-[@bs.scope "console"] [@bs.val] external warn: 'a => unit = "";
-[@bs.scope "console"] [@bs.val] external error: 'a => unit = "";
-[@bs.scope "window"] [@bs.val] external onerror: 'a => unit = "";
-[@bs.val] external window: 'w = "";
-[@bs.val] external console: 'b = "";
-[@bs.set] external setLog: ('b, 'a => unit) => unit = "log";
-[@bs.set] external setWarn: ('b, 'a => unit) => unit = "warn";
-[@bs.set] external setError: ('b, 'a => unit) => unit = "error";
-[@bs.set] external setOnError: ('w, 'a => unit) => unit = "onerror";
-let consoleLog: 'a => unit = [%bs.raw {| console.log |}];
-let consoleWarn: 'a => unit = [%bs.raw {| console.warn |}];
-let consoleError: 'a => unit = [%bs.raw {| console.error |}];
-/* console bindings */
-
-let intersept_ = cb => {
-  setLog(
-    console,
-    (text: string) => {
-      consoleLog(text);
-      cb(Log(text ++ "\n"));
-      ();
-    },
-  );
-
-  setWarn(
-    console,
-    (text: string) => {
-      consoleWarn(text);
-      cb(Warn(text ++ "\n"));
-      ();
-    },
-  );
-
-  setError(
-    console,
-    (text: string) => {
-      consoleError(text);
-      cb(Error(text ++ "\n"));
-      ();
-    },
-  );
-};
-
-let switchInterseptErrortoWarn_ = cb => {
-  setWarn(
-    console,
-    (text: string) => {
-      consoleWarn(text);
-      cb(Warn(text ++ "\n"));
-      ();
-    },
-  );
-
-  setError(
-    console,
-    (text: string) => {
-      consoleWarn(text);
-      cb(Warn(text ++ "\n"));
-      ();
-    },
-  );
-};
-
-let deregisterLogger_ = () => {
-  setLog(console, consoleLog);
-  setWarn(console, consoleWarn);
-  setError(console, consoleError);
 };
 
 let useLogger = () => {
   let ctx = React.useContext(Context.ctx);
 
-  React.useEffect0(() => {
-    setOnError(window, (err: error_u) =>
-      ctx.dispatch(UnCaughtError(messageGet(err)))
-    );
-    Some(() => ());
-  });
-
-  let registerLogger = () => {
-    intersept_(ctx.dispatch);
-  };
-
-  let deregisterLogger = () => {
-    deregisterLogger_();
-  };
-
-  let switchInterseptErrortoWarn = () => {
-    switchInterseptErrortoWarn_(ctx.dispatch);
-  };
-
-  let revertInterseptErrortoWarn = registerLogger;
-
-  let clearConsole = () => ctx.dispatch(Clear);
-
   (
-    ctx.state.log,
-    registerLogger,
-    deregisterLogger,
-    switchInterseptErrortoWarn,
-    revertInterseptErrortoWarn,
-    clearConsole,
+    ctx.state.all,
+    () => ctx.dispatch(ToggeBsWarn),
+    () => ctx.dispatch(Clear),
   );
 };
