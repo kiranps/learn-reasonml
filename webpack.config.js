@@ -18,13 +18,9 @@ module.exports = {
     rules: [
       {
         test: /\.css$/,
-        use: ["style-loader", "css-loader", "postcss-loader"]
-        // use: [
-        //   MiniCssExtractPlugin.loader,
-        //   "style-loader",
-        //   "css-loader",
-        //   "postcss-loader"
-        // ]
+        use: isProd
+          ? [MiniCssExtractPlugin.loader, "css-loader", "postcss-loader"]
+          : ["style-loader", "css-loader", "postcss-loader"]
       }
     ]
   },
