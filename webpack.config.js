@@ -10,6 +10,7 @@ const isProd = process.env.NODE_ENV === "production";
 module.exports = {
   entry: "./src/Index.bs.js",
   mode: isProd ? "production" : "development",
+  devtool: isProd ? "source-map" : false,
   output: {
     path: buildPath,
     filename: "Index.js"
