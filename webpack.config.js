@@ -1,5 +1,6 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const contentBase = path.join(__dirname, "/public");
 const buildPath = path.join(__dirname, "/build");
@@ -17,11 +18,21 @@ module.exports = {
     rules: [
       {
         test: /\.css$/,
-        use: ["style-loader", "css-loader"]
+        use: ["style-loader", "css-loader", "postcss-loader"]
+        // use: [
+        //   MiniCssExtractPlugin.loader,
+        //   "style-loader",
+        //   "css-loader",
+        //   "postcss-loader"
+        // ]
       }
     ]
   },
   plugins: [
+    new MiniCssExtractPlugin({
+      filename: "styles.css",
+      chunkFilename: "styles.css"
+    }),
     new HtmlWebpackPlugin({
       template: "src/index.html",
       inject: false

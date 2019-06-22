@@ -1,5 +1,3 @@
-open Css;
-
 type t;
 [@bs.new] [@bs.module "ansi_up"] external ansiUp: unit => t = "default";
 [@bs.send] external ansi_to_html: (t, string) => string = "";
@@ -16,42 +14,19 @@ let toHtmlMarkup = text => {
 
 let toAnsiHtml = text => text |> ansi_to_html(ansiInstance) |> toHtmlMarkup;
 
-let preview_style =
-  style([
-    position(absolute),
-    display(inlineBlock),
-    top(px(35)),
-    bottom(px(0)),
-    right(px(0)),
-    width(pct(50.0)),
-    boxSizing(borderBox),
-    backgroundColor(white),
-    overflow(auto),
-  ]);
-
 let message_style = type_ =>
-  style([
-    fontSize(px(13)),
-    paddingTop(px(3)),
-    paddingBottom(px(3)),
-    paddingLeft(px(8)),
-    borderBottom(px(1), solid, hex("f4f4f4")),
-    (
-      switch (type_) {
-      | "log" => "757575"
-      | "error" => "ca0101"
-      | "warn" => "#ffb400"
-      | "problem" => "#ffb400"
-      | _ => "7575757"
-      }
-    )
-    |> hex
-    |> color,
-  ]);
+  "text-sm pt-1 pb-2 pl-4 border-b border-gray-300 "
+  ++ (
+    switch (type_) {
+    | "log" => "text-gray-900"
+    | "error" => "text-red-600"
+    | "warn" => "text-orange-600"
+    | "problem" => "text-orange-600"
+    | _ => "text-gray-900"
+    }
+  );
 
 module Message = {
-  let log_info_style = style([paddingBottom(px(5))]);
-
   [@react.component]
   let make = (~text, ~type_) =>
     <div
@@ -79,7 +54,8 @@ let make = _ => {
     |> Array.of_list
     |> React.array;
 
-  <div className=preview_style>
+  <div
+    className="fixed inline-block pt-12 w-1/2 overflow-hidden top-0 bottom-0 right-0">
     <Tabs>
       {[|
          ("Console", <Tabs.Pane> {log("all")} </Tabs.Pane>),

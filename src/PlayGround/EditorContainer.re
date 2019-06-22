@@ -1,16 +1,6 @@
-open Css;
-
-let container_style =
-  style([
-    position(absolute),
-    display(inlineBlock),
-    top(px(35)),
-    bottom(px(0)),
-    left(px(0)),
-    width(pct(50.0)),
-    boxSizing(borderBox),
-    borderRight(px(1), solid, rgba(158, 158, 158, 0.41)),
-  ]);
-
 [@react.component]
-let make = (~children) => <div className=container_style> children </div>;
+let make = (~children) =>
+  <div
+    className="fixed inline-block pt-12 w-1/2 border-r border-gray-300 overflow-hidden top-0 bottom-0 left-0">
+    children
+  </div>;

@@ -1,12 +1,3 @@
-open Css;
-
-let editor_style =
-  style([
-    height(pct(100.0)),
-    width(pct(100.0)),
-    selector("& > div", [height(pct(100.0))]),
-  ]);
-
 [@react.component]
 let make = (~exercise_name: string) => {
   let (code, setCode) = React.useState(() => None);
@@ -50,7 +41,7 @@ let make = (~exercise_name: string) => {
     {switch (code) {
      | Some(value) =>
        <CodeMirror
-         className=editor_style
+         className="h-full w-full"
          value
          onChange=handleChange
          onSave=handleSave

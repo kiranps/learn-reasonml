@@ -1,45 +1,18 @@
-open Css;
-
-let tab = active =>
-  style([
-    display(inlineBlock),
-    width(px(100)),
-    boxSizing(borderBox),
-    hover([backgroundColor(hex("efefef"))]),
-    textAlign(center),
-    height(pct(100.)),
-    padding(px(6)),
-    fontSize(px(13)),
-    userSelect(none),
-    borderStyle(none),
-    borderBottom(px(2), solid, active ? blue : transparent),
-    marginRight(px(2)),
-    cursor(`pointer),
-  ]);
-
-let header =
-  style([
-    width(pct(100.)),
-    height(px(27)),
-    boxSizing(borderBox),
-    backgroundColor(hex("f7f7f7")),
-    borderBottom(px(1), solid, rgba(158, 158, 158, 0.41)),
-  ]);
-
-let pane = style([paddingTop(px(0))]);
-
 [@react.component]
 let make = (~children) => {
   let (activeTab, setTab) = React.useState(() => 0);
   let handleClick = value => setTab(_ => value);
+  let tab = "w-24 h-full text-center leading-loose text-xs select-none cursor-pointer hover:bg-gray-300";
+  let active_tab = tab ++ " border-b-2 border-blue-400";
 
   <>
-    <div className=header>
+    <div
+      className="flex items-start w-full h-6 bg-gray-100 border-b border-gray-200">
       {children
        |> Array.mapi((i, (x, _)) =>
             <div
               key={string_of_int(i)}
-              className={tab(i === activeTab)}
+              className={i === activeTab ? active_tab : tab}
               onClick={_ => handleClick(i)}>
               {React.string(x)}
             </div>
@@ -56,5 +29,5 @@ let make = (~children) => {
 
 module Pane = {
   [@react.component]
-  let make = (~children) => <div className=pane> children </div>;
+  let make = (~children) => <div> children </div>;
 };

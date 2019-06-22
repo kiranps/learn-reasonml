@@ -20,16 +20,20 @@
   "dependencies": {
     "@glennsl/bs-json": "^4.0.0",
     "ansi_up": "^4.0.3",
-    "bs-css": "^8.0.4",
+    "autoprefixer": "^9.6.0",
     "bs-fetch": "^0.4.0",
     "codemirror": "^5.47.0",
     "copy-webpack-plugin": "^5.0.3",
-    "css-loader": "^2.1.1",
+    "css-loader": "^3.0.0",
     "gh-pages": "^2.0.1",
+    "mini-css-extract-plugin": "^0.7.0",
+    "postcss-cli": "^6.1.2",
+    "postcss-loader": "^3.0.0",
     "react": "^16.8.1",
     "react-dom": "^16.8.1",
     "reason-react": ">=0.7.0",
-    "style-loader": "^0.23.1"
+    "style-loader": "^0.23.1",
+    "tailwindcss": "^1.0.4"
   },
   "devDependencies": {
     "bs-platform": "^5.0.4",
