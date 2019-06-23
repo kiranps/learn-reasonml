@@ -36,7 +36,7 @@ let make = (~exercise_name: string) => {
 
   <>
     <AppBar>
-      <button onClick=handleRun> {React.string("run")} </button>
+      <Button.Plain onClick=handleRun> {React.string("Run")} </Button.Plain>
     </AppBar>
     {switch (code) {
      | Some(value) =>

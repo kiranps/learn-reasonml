@@ -15,7 +15,7 @@ let toHtmlMarkup = text => {
 let toAnsiHtml = text => text |> ansi_to_html(ansiInstance) |> toHtmlMarkup;
 
 let message_style = type_ =>
-  "text-sm pt-1 pb-2 pl-4 border-b border-gray-300 "
+  "text-xs pt-1 pb-1 pl-4 border-b border-gray-300 "
   ++ (
     switch (type_) {
     | "log" => "text-gray-900"
@@ -55,7 +55,7 @@ let make = _ => {
     |> React.array;
 
   <div
-    className="fixed inline-block pt-12 w-1/2 overflow-hidden top-0 bottom-0 right-0">
+    className="fixed inline-block w-1/2 overflow-hidden pt-12 top-0 bottom-0 right-0">
     <Tabs>
       {[|
          ("Console", <Tabs.Pane> {log("all")} </Tabs.Pane>),

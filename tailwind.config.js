@@ -1,7 +1,13 @@
 module.exports = {
   theme: {
-    extend: {}
+    extend: {
+      colors: {
+        ghostwhite: "#f8f8ff"
+      }
+    }
   },
-  variants: {},
+  variants: {
+    outline: ["focus", "responsive", "hover"]
+  },
   plugins: []
-}
+};

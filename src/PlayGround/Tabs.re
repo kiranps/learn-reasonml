@@ -2,12 +2,12 @@
 let make = (~children) => {
   let (activeTab, setTab) = React.useState(() => 0);
   let handleClick = value => setTab(_ => value);
-  let tab = "w-24 h-full text-center leading-loose text-xs select-none cursor-pointer hover:bg-gray-300";
-  let active_tab = tab ++ " border-b-2 border-blue-400";
+  let tab = "w-24 h-full text-center leading-loose text-xs select-none cursor-pointer hover:bg-gray-200";
+  let active_tab = tab ++ " border-b-2 border-blue-500";
 
   <>
     <div
-      className="flex items-start w-full h-6 bg-gray-100 border-b border-gray-200">
+      className="flex items-start w-full h-6 bg-ghostwhite border-b border-gray-200">
       {children
        |> Array.mapi((i, (x, _)) =>
             <div
