@@ -90,9 +90,9 @@ module Provider = {
           | Error(value) => {
               ...state,
               all:
-                state.isBsLogging
-                  ? [{type_: "problems", message: value}, ...state.all]
-                  : [{type_: "error", message: value}, ...state.all],
+                state.isBsLogging ?
+                  [{type_: "problems", message: value}, ...state.all] :
+                  [{type_: "error", message: value}, ...state.all],
             }
           | Warn(value) => {
               ...state,
@@ -115,9 +115,5 @@ module Provider = {
 let useLogger = () => {
   let ctx = React.useContext(Context.ctx);
 
-  (
-    ctx.state.all,
-    () => ctx.dispatch(ToggeBsWarn),
-    () => ctx.dispatch(Clear),
-  );
+  (ctx.state.all, () => ctx.dispatch(Clear));
 };

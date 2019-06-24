@@ -1,19 +1,3 @@
-type t;
-[@bs.new] [@bs.module "ansi_up"] external ansiUp: unit => t = "default";
-[@bs.send] external ansi_to_html: (t, string) => string = "";
-
-let ansiInstance = ansiUp();
-
-type html = {. [@bs.set] "__html": string};
-
-let toHtmlMarkup = text => {
-  let foo = Js.Obj.empty();
-  foo##__html #= text;
-  foo;
-};
-
-let toAnsiHtml = text => text |> ansi_to_html(ansiInstance) |> toHtmlMarkup;
-
 let message_style = type_ =>
   "text-xs pt-1 pb-1 pl-4 border-b border-gray-300 "
   ++ (
@@ -29,15 +13,12 @@ let message_style = type_ =>
 module Message = {
   [@react.component]
   let make = (~text, ~type_) =>
-    <div
-      className={message_style(type_)}
-      dangerouslySetInnerHTML={toAnsiHtml(text)}
-    />;
+    <div className={message_style(type_)}> {React.string(text)} </div>;
 };
 
 [@react.component]
 let make = _ => {
-  let (logs, _, _) = Logger.useLogger();
+  let (logs, _) = Logger.useLogger();
 
   React.useEffect0(() => Some(() => ()));
 
@@ -57,10 +38,10 @@ let make = _ => {
   <div
     className="fixed inline-block w-1/2 overflow-hidden pt-12 top-0 bottom-0 right-0">
     <Tabs>
-      {[|
-         ("Console", <Tabs.Pane> {log("all")} </Tabs.Pane>),
-         ("Problems", <Tabs.Pane> {log("problems")} </Tabs.Pane>),
-       |]}
+      [|
+        ("Console", <Tabs.Pane> {log("all")} </Tabs.Pane>),
+        ("Problems", <Tabs.Pane> {log("problems")} </Tabs.Pane>),
+      |]
     </Tabs>
   </div>;
 };

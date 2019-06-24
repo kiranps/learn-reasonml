@@ -1,115 +1,36 @@
-[@bs.deriving abstract]
-type t = {
-  [@bs.optional]
-  js_code: string,
-  [@bs.optional]
-  column: int,
-  [@bs.optional]
-  endColumn: int,
-  [@bs.optional]
-  endRow: int,
-  [@bs.optional]
-  js_error_msg: string,
-  [@bs.optional]
-  row: int,
-  [@bs.optional]
-  text: string,
-  [@bs.optional] [@bs.as "type"]
-  type_: string,
-};
-
-[@bs.deriving abstract]
-type t_location = {
-  endLine: int,
-  endLineEndChar: int,
-  startLine: int,
-  startLineStartChar: int,
-};
-
-[@bs.deriving abstract]
-type t_parse_error = {
-  location: t_location,
-  message: string,
-};
-
-type p;
-type out_type =
-  | Fail(string)
-  | Success(string);
-
-type t_reason_parsed =
-  | AST(p)
-  | ParseFailed(string);
-
-type t_compile_output =
-  | Compiled(t)
-  | ParseFailed(string);
-
-let compile_super_errors_ppx_v2: string => t = [%bs.raw
-  {| window.ocaml.compile_super_errors_ppx_v2 |}
-];
-
-let printML: p => string = [%bs.raw {| window.printML |}];
-
-let parseRE: string => p = [%bs.raw {| window.parseRE |}];
+type t =
+  | Compiled(BsBox.success)
+  | CompileError(BsBox.error)
+  | ReasonParseError(BsBox.Reason.error);
 
 let addTestModule = code => ReModules.test ++ code;
-
-let wrapInExports = code => "(function(exports) {" ++ code ++ "})({})";
-
-external exnToParseError: Js.Exn.t => t_parse_error = "%identity";
-
-let fixLineNumber = x => x - 47;
-
-let parseRE_: string => t_reason_parsed =
-  reasonCode =>
-    try (reasonCode |> parseRE |> (value => AST(value))) {
-    | Js.Exn.Error(e) =>
-      let errorObject = exnToParseError(e);
-      let location = locationGet(errorObject);
-      let startLine =
-        location |> startLineGet |> fixLineNumber |> string_of_int;
-      let endLine = location |> endLineGet |> fixLineNumber |> string_of_int;
-      let startLineStartChar =
-        location |> startLineStartCharGet |> string_of_int;
-      let endLineEndChar = location |> endLineEndCharGet |> string_of_int;
-      let position =
-        startLine
-        ++ ":"
-        ++ startLineStartChar
-        ++ "-"
-        ++ endLine
-        ++ ":"
-        ++ endLineEndChar;
-      switch (Js.Exn.message(e)) {
-      | Some(message) => ParseFailed(position ++ " " ++ message)
-      | None => ParseFailed("parse error")
-      };
-    };
 
 let compile = reasonCode =>
   reasonCode
   |> addTestModule
-  |> parseRE_
+  |> BsBox.Reason.toOcaml
   |> (
-    parsedCode =>
-      switch (parsedCode) {
-      | AST(value) =>
-        value
-        |> printML
-        |> compile_super_errors_ppx_v2
-        |> (result => Compiled(result))
-      | ParseFailed(message) => ParseFailed(message)
-      }
-  )
-  |> (
-    output =>
-      switch (output) {
-      | Compiled(out) =>
-        switch (js_codeGet(out)) {
-        | Some(value) => Success(wrapInExports(value))
-        | None => Fail("compile error")
-        }
-      | ParseFailed(message) => Fail(message)
-      }
+    fun
+    | Ocaml(code) =>
+      code
+      |> BsBox.compile
+      |> BsBox.(
+           (
+             fun
+             | Ok(output) => Compiled(output)
+             | Error(`BsCompileError(err)) => CompileError(err)
+           )
+         )
+    | ReasonParseError(message) => ReasonParseError(message)
   );
+
+let formatCompileError = (error: BsBox.error) =>
+  string_of_int(error.from.line)
+  ++ ":"
+  ++ string_of_int(error.from.column)
+  ++ "-"
+  ++ string_of_int(error.until.line)
+  ++ ":"
+  ++ string_of_int(error.until.column)
+  ++ "  "
+  ++ error.message;
