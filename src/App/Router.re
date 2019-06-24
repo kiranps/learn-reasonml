@@ -7,6 +7,7 @@ let make = () => {
   | [|""|] => <Exercises />
   | [|"", "exercises"|] => <Exercises />
   | [|"", "exercise", exercise_name|] => <PlayGround exercise_name />
+  | [|"", "playground"|] => <PlayGround />
   | _ => <NotFoundPage />
   };
 };

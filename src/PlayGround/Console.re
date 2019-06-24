@@ -26,7 +26,7 @@ let make = _ => {
     logs
     |> List.filter((x: Logger.t) => x.message !== "")
     |> List.filter((x: Logger.t) =>
-         type_ === "all" ? x.type_ !== "problems" : x.type_ === "problems"
+         type_ === "all" ? x.type_ !== "problem" : x.type_ === "problem"
        )
     |> List.mapi((i, x: Logger.t) =>
          <Message key={string_of_int(i)} type_={x.type_} text={x.message} />
@@ -40,7 +40,7 @@ let make = _ => {
     <Tabs>
       [|
         ("Console", <Tabs.Pane> {log("all")} </Tabs.Pane>),
-        ("Problems", <Tabs.Pane> {log("problems")} </Tabs.Pane>),
+        ("Problems", <Tabs.Pane> {log("problem")} </Tabs.Pane>),
       |]
     </Tabs>
   </div>;

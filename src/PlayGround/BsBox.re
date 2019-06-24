@@ -42,6 +42,7 @@ module Reason = {
 
   type p;
 
+  let printRE: p => string = [%bs.raw {| window.printRE |}];
   let printML: p => string = [%bs.raw {| window.printML |}];
   let parseRE: string => p = [%bs.raw {| window.parseRE |}];
 
@@ -69,6 +70,8 @@ module Reason = {
 
         ReasonParseError(error);
       };
+
+  let format = reasonCode => reasonCode |> parseRE |> printRE;
 };
 
 module InternalResult = {

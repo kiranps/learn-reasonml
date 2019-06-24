@@ -11,7 +11,6 @@ type action =
   | Log(string)
   | Warn(string)
   | BsWarn(string)
-  | ToggeBsWarn
   | Error(string)
   | UnCaughtError(string)
   | Clear;
@@ -82,21 +81,17 @@ module Provider = {
       React.useReducer(
         (state, action) =>
           switch (action) {
-          | ToggeBsWarn => {...state, isBsLogging: !state.isBsLogging}
           | Log(value) => {
               ...state,
               all: [{type_: "log", message: value}, ...state.all],
             }
           | Error(value) => {
               ...state,
-              all:
-                state.isBsLogging ?
-                  [{type_: "problems", message: value}, ...state.all] :
-                  [{type_: "error", message: value}, ...state.all],
+              all: [{type_: "error", message: value}, ...state.all],
             }
           | Warn(value) => {
               ...state,
-              all: [{type_: "warn", message: value}, ...state.all],
+              all: [{type_: "problem", message: value}, ...state.all],
             }
           | Clear => {...state, all: []}
           },

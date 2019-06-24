@@ -19,6 +19,7 @@ module CM = {
   external init: (option(Dom.element), cmprops) => cm = "codemirror";
   [@bs.module "codemirror"] external commands: cmds = "";
   [@bs.send] external getValue: evt => string = "";
+  [@bs.send] external setValue: (cm, string) => unit = "";
   [@bs.send] external on: (cm, string, evt => unit) => unit = "";
 };
 
@@ -26,12 +27,15 @@ module CM = {
 let make =
   React.memo((~value, ~onChange=?, ~onSave=?, ~className="") => {
     let divRef = React.useRef(Js.Nullable.null);
+    let cmRef = React.useRef(Js.Nullable.null);
 
     React.useEffect0(() => {
       let options = CM.cmprops(~lineNumbers=true, ~mode="rust", ~value);
 
       let cm =
         CM.init(Js.Nullable.toOption(React.Ref.(current(divRef))), options);
+
+      React.Ref.(cm |> Js.Nullable.return |> setCurrent(cmRef));
 
       switch (onSave) {
       | None => ()
@@ -42,11 +46,32 @@ let make =
       switch (onChange) {
       | None => ()
       | Some(handleChange) =>
-        CM.on(cm, "change", e => handleChange(CM.getValue(e)))
+        CM.on(
+          cm,
+          "change",
+          e => {
+            let value_ = CM.getValue(e);
+            if (value_ !== value) {
+              handleChange(value_);
+            };
+          },
+        )
       };
 
       Some(() => ());
     });
+
+    React.useEffect1(
+      () => {
+        let cm = Js.Nullable.toOption(React.Ref.current(cmRef));
+        switch (cm) {
+        | Some(ele) => CM.setValue(ele, value)
+        | None => ()
+        };
+        Some(() => ());
+      },
+      [|value|],
+    );
 
     <EditorContainer>
       <div className ref={ReactDOMRe.Ref.domRef(divRef)} />

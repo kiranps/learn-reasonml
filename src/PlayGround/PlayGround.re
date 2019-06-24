@@ -1,44 +1,63 @@
 let wrapInExports = code => "(function(exports) {" ++ code ++ "})({})";
 
 [@react.component]
-let make = (~exercise_name: string) => {
+let make = (~exercise_name=?) => {
   let (code, setCode) = React.useState(() => None);
   let (_, clearConsole) = Logger.useLogger();
+  let cmRef = React.useRef("");
 
   React.useEffect0(() => {
     let _ = clearConsole();
-    Js.Promise.(
-      Http.getText("/exercises/" ++ exercise_name)
-      |> then_(text => text |> (text => setCode(_ => Some(text)) |> resolve))
-    );
+    switch (exercise_name) {
+    | Some(name) =>
+      Js.Promise.(
+        Http.getText("/exercises/" ++ name)
+        |> then_(text =>
+             text |> (text => setCode(_ => Some(text)) |> resolve)
+           )
+      );
+      ();
+    | None => setCode(_ => Some(""))
+    };
+
     Some(() => ());
   });
 
-  let handleChange = React.useCallback0(value => setCode(_ => Some(value)));
+  let handleChange =
+    React.useCallback0(value => React.Ref.setCurrent(cmRef, value));
 
-  let handleCompile = reasonCode => {
-    let result = reasonCode |> Compiler.compile;
+  let handleCompile =
+    React.useCallback0(reasonCode => {
+      let result = reasonCode |> Compiler.compile;
 
-    switch (result) {
-    | Compiled({code, warnings}) =>
-      warnings |> Array.iter(Js.Console.warn);
-      code |> wrapInExports |> Utils.eval;
-    | CompileError(error) => error |> Compiler.formatCompileError |> Js.log
-    | ReasonParseError(error) => Js.log(error)
-    };
+      switch (result) {
+      | Compiled({code, warnings}) =>
+        warnings |> Array.iter(Js.Console.warn);
+        code |> wrapInExports |> Utils.eval;
+      | CompileError(error) => error |> Compiler.formatCompileError |> Js.log
+      | ReasonParseError(error) => Js.log(error)
+      };
+    });
+
+  let handleRun = _ => cmRef |> React.Ref.current |> handleCompile;
+
+  let handleReformat = _ => {
+    let _ =
+      cmRef
+      |> React.Ref.current
+      |> BsBox.Reason.format
+      |> (value => setCode(_ => Some(value)));
+    ();
   };
 
-  let handleRun = _ =>
-    switch (code) {
-    | Some(reasonCode) => handleCompile(reasonCode)
-    | None => Js.log("error")
-    };
-
-  let handleSave = handleCompile;
+  let handleSave = React.useCallback0(handleCompile);
 
   <>
     <AppBar>
-      <Button.Plain onClick=handleRun> {React.string("Run")} </Button.Plain>
+      <Button icon="play" onClick=handleRun> {React.string("Run")} </Button>
+      <Button icon="format" onClick=handleReformat>
+        {React.string("Pretty print")}
+      </Button>
     </AppBar>
     {
       switch (code) {
