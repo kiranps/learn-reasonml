@@ -13,7 +13,15 @@ let make = (~exercise_name=?) => {
       Js.Promise.(
         Http.getText("/exercises/" ++ name)
         |> then_(text =>
-             text |> (text => setCode(_ => Some(text)) |> resolve)
+             text
+             |> (
+               text =>
+                 {
+                   setCode(_ => Some(text));
+                   React.Ref.setCurrent(cmRef, text);
+                 }
+                 |> resolve
+             )
            )
       );
       ();
@@ -24,7 +32,7 @@ let make = (~exercise_name=?) => {
   });
 
   let handleChange =
-    React.useCallback0(value => React.Ref.setCurrent(cmRef, value));
+    React.useCallback0(value => value |> React.Ref.setCurrent(cmRef));
 
   let handleCompile =
     React.useCallback0(reasonCode => {
