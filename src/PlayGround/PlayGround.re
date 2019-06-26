@@ -10,20 +10,21 @@ let make = (~exercise_name=?) => {
     let _ = clearConsole();
     switch (exercise_name) {
     | Some(name) =>
-      Js.Promise.(
-        Http.getText("/exercises/" ++ name)
-        |> then_(text =>
-             text
-             |> (
-               text =>
-                 {
-                   setCode(_ => Some(text));
-                   React.Ref.setCurrent(cmRef, text);
-                 }
-                 |> resolve
+      let _ =
+        Js.Promise.(
+          Http.getText("/exercises/" ++ name)
+          |> then_(text =>
+               text
+               |> (
+                 text =>
+                   {
+                     setCode(_ => Some(text));
+                     React.Ref.setCurrent(cmRef, text);
+                   }
+                   |> resolve
+               )
              )
-           )
-      );
+        );
       ();
     | None => setCode(_ => Some(""))
     };
@@ -31,39 +32,60 @@ let make = (~exercise_name=?) => {
     Some(() => ());
   });
 
-  let handleChange =
-    React.useCallback0(value => value |> React.Ref.setCurrent(cmRef));
+  /* let handleChange =
+     React.useCallback0(value => value |> React.Ref.setCurrent(cmRef)); */
+  /* let handleChange =
+     React.useCallback0(value => setCode(_ => value)); */
 
-  let handleCompile =
-    React.useCallback0(reasonCode => {
-      let result = reasonCode |> Compiler.compile;
+  let handleChange = value =>
+    switch (code) {
+    | Some(code) =>
+      if (code !== value) {
+        setCode(_ => Some(value));
+      }
+    | None => ()
+    };
 
-      switch (result) {
-      | Compiled({code, warnings}) =>
-        warnings |> Array.iter(Js.Console.warn);
-        code |> wrapInExports |> Utils.eval;
-      | CompileError(error) => error |> Compiler.formatCompileError |> Js.log
-      | ReasonParseError(error) => Js.log(error)
-      };
-    });
+  let handleCompile = reasonCode => {
+    let result = reasonCode |> Compiler.compile;
 
-  let handleRun = _ => cmRef |> React.Ref.current |> handleCompile;
-
-  let handleReformat = _ => {
-    let _ =
-      cmRef
-      |> React.Ref.current
-      |> BsBox.Reason.format
-      |> (value => setCode(_ => Some(value)));
-    ();
+    switch (result) {
+    | Compiled({code, warnings}) =>
+      warnings |> Array.iter(Js.Console.warn);
+      code |> wrapInExports |> Utils.eval;
+    | CompileError(error) => error |> Compiler.formatCompileError |> Js.log
+    | ReasonParseError(error) => Js.log(error)
+    };
   };
 
-  let handleSave = React.useCallback0(handleCompile);
+  /* let handleRun = _ => cmRef |> React.Ref.current |> handleCompile; */
+  let handleRun = _ =>
+    switch (code) {
+    | Some(code) => code |> handleCompile
+    | None => ()
+    };
+
+  /* let handlePrettyPrint = _ =>
+     cmRef
+     |> React.Ref.current
+     |> BsBox.Reason.format
+     |> (value => setCode(_ => Some(value))); */
+
+  let handlePrettyPrint = _ =>
+    switch (code) {
+    | Some(code) =>
+      code |> BsBox.Reason.format |> (value => setCode(_ => Some(value)))
+    | None => ()
+    };
+
+  /* let handleSave = React.useCallback0(handleCompile); */
+
+  let handleSave = handleCompile;
 
   <>
     <AppBar>
       <Button icon="play" onClick=handleRun> {React.string("Run")} </Button>
-      <Button icon="format" onClick=handleReformat>
+      <Button icon="format" onClick=handlePrettyPrint>
         {React.string("Pretty print")}
       </Button>
     </AppBar>
