@@ -89,18 +89,21 @@ let make = (~exercise_name=?) => {
         {React.string("Pretty print")}
       </Button>
     </AppBar>
-    {
-      switch (code) {
-      | Some(value) =>
-        <CodeMirror
-          className="h-full w-full"
-          value
-          onChange=handleChange
-          onSave=handleSave
-        />
-      | None => <div> {React.string("Loading")} </div>
+    <div
+      className="fixed inline-block pt-12 w-1/2 border-r border-gray-300 overflow-hidden top-0 bottom-0 left-0">
+      {
+        switch (code) {
+        | Some(value) => <Monaco value onChange=handleChange />
+        | None => <div> {React.string("Loading")} </div>
+        }
       }
-    }
+    </div>
     <Console />
   </>;
 };
+/* <CodeMirror
+     className="h-full w-full"
+     value
+     onChange=handleChange
+     onSave=handleSave
+   /> */
