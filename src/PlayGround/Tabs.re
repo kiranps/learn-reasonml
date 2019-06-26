@@ -7,7 +7,7 @@ let make = (~children) => {
 
   <>
     <div
-      className="flex flex-start w-full h-8 bg-ghost white border-b border-gray-200">
+      className="flex flex-start w-full h-8 bg-ghostwhite border-b border-gray-200">
       {
         children
         |> Array.mapi((i, (x, _)) =>

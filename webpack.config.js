@@ -1,6 +1,7 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const contentBase = path.join(__dirname, "/public");
 const buildPath = path.join(__dirname, "/build");
@@ -26,6 +27,7 @@ module.exports = {
     ]
   },
   plugins: [
+    new MonacoWebpackPlugin(),
     new MiniCssExtractPlugin({
       filename: "styles.css",
       chunkFilename: "styles.css"

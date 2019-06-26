@@ -12,6 +12,7 @@ type monacoOptions = {
   value: string,
   language: string,
   fontSize: int,
+  theme: string,
   minimap: {. enabled: bool},
 };
 
@@ -25,9 +26,10 @@ let make = (~value, ~onChange) => {
     | Some(ele) =>
       let options = {
         "lineNumbersMinChars": 3,
-        "language": "rust",
         "value": value,
-        "fontSize": 12,
+        "fontSize": 13,
+        "language": "rust",
+        "theme": "vs",
         "minimap": {
           "enabled": false,
         },
